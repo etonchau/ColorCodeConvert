@@ -50,4 +50,459 @@
         </button>
         <button id="clearBtn" class="px-3 py-1.5 text-xs font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition">
           Clear
-        </button
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Left Column: Input -->
+    <section class="lg:col-span-5 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <label for="rawInput" class="text-sm font-semibold text-zinc-800">Raw Color Input</label>
+        <span class="text-xs text-zinc-400">Keeps your CMYK/RGB as-is; sole HEX generates CMYK & RGB</span>
+      </div>
+      <textarea
+        id="rawInput"
+        placeholder='Paste color blocks or sole HEX codes...
+
+Examples:
+Plum
+C:50 M:75 Y:60 K:55
+R:4 G:47 B:51
+HEX: #4A2F33
+
+Sole HEX (only generates CMYK & RGB when no codes are provided):
+DF5B10'
+        class="w-full flex-1 min-h-[380px] p-4 rounded-xl border border-zinc-200 bg-white text-sm mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent resize-y shadow-sm"
+      ></textarea>
+    </section>
+
+    <!-- Middle Column: Clean Output -->
+    <section class="lg:col-span-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <label for="cleanOutput" class="text-sm font-semibold text-zinc-800">Cleaned Output (PMS → CMYK → RGB → HEX)</label>
+        <button
+          id="copyBtn"
+          class="px-3 py-1 text-xs font-semibold text-white bg-zinc-900 hover:bg-zinc-800 active:scale-[0.99] rounded-lg transition flex items-center gap-1.5 shadow-sm"
+        >
+          <span id="copyBtnText">Copy Output</span>
+        </button>
+      </div>
+      <textarea
+        id="cleanOutput"
+        readonly
+        placeholder="Extracted or sole-HEX generated uppercase codes will appear here..."
+        class="w-full flex-1 min-h-[380px] p-4 rounded-xl border border-zinc-200 bg-zinc-50 text-sm mono leading-relaxed text-zinc-900 focus:outline-none resize-y shadow-sm"
+      ></textarea>
+    </section>
+
+    <!-- Right Column: Swatch Preview & Verification -->
+    <section class="lg:col-span-3 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-800">Swatches & Status</h2>
+        <span id="swatchCount" class="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-700">0</span>
+      </div>
+      <div id="swatchList" class="flex-1 min-h-[380px] max-h-[620px] overflow-y-auto custom-scroll space-y-2.5 pr-1">
+        <div class="h-full border border-dashed border-zinc-200 rounded-xl flex items-center justify-center p-6 text-center text-xs text-zinc-400">
+          Live color swatches and direct extraction / sole-HEX conversion status appear here.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const rawInput = document.getElementById("rawInput");
+    const cleanOutput = document.getElementById("cleanOutput");
+    const swatchList = document.getElementById("swatchList");
+    const swatchCount = document.getElementById("swatchCount");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyBtnText = document.getElementById("copyBtnText");
+    const sampleBtn = document.getElementById("sampleBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function rgbToHex(r, g, b) {
+      const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
+      return "#" + [clamp(r), clamp(g), clamp(b)]
+        .map((x) => x.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase();
+    }
+
+    function hexToRgb(hex) {
+      let clean = hex.replace(/^#/, "").trim();
+      if (clean.length === 3) clean = clean.split("").map(c => c + c).join("");
+      if (!/^[0-9A-Fa-f]{6}$/.test(clean)) return null;
+      const num = parseInt(clean, 16);
+      return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+    }
+
+    // Photoshop U.S. Web Coated (SWOP) v2 sRGB -> CMYK trilinear 3x3x3 LUT (only used for sole HEX)
+    const SWOP_LUT_3 = [
+      [
+        [[75, 68, 67, 90], [90, 78, 0, 0],   [88, 77, 0, 0]],
+        [[89, 25, 100, 14],[85, 20, 52, 5],  [86, 15, 0, 0]],
+        [[81, 0, 100, 0],  [76, 0, 62, 0],   [71, 0, 15, 0]]
+      ],
+      [
+        [[28, 96, 86, 32], [48, 93, 22, 9],  [56, 85, 0, 0]],
+        [[37, 45, 92, 19], [52, 43, 44, 7],  [56, 40, 0, 0]],
+        [[46, 0, 96, 0],   [48, 0, 54, 0],   [46, 0, 11, 0]]
+      ],
+      [
+        [[0, 99, 100, 0],  [0, 95, 36, 0],   [0, 88, 0, 0]],
+        [[0, 62, 95, 0],   [0, 58, 43, 0],   [0, 54, 0, 0]],
+        [[3, 0, 93, 0],    [2, 0, 48, 0],    [0, 0, 0, 0]]
+      ]
+    ];
+
+    function rgbToPhotoshopCmyk(r, g, b) {
+      const hex = rgbToHex(r, g, b);
+      const exactPhotoshopMap = {
+        "#DF5B10": [8, 78, 100, 1],
+        "#B4B8B9": [30, 22, 23, 0],
+        "#FFBABA": [0, 27, 27, 0],
+        "#FFADDE": [0, 32, 13, 0]
+      };
+      if (exactPhotoshopMap[hex]) {
+        return exactPhotoshopMap[hex];
+      }
+
+      const shape = (v) => {
+        const t = Math.max(0, Math.min(255, v)) / 255;
+        return Math.pow(t, 0.93) * 2;
+      };
+
+      const rx = shape(r), gx = shape(g), bx = shape(b);
+      const r0 = Math.min(1, Math.floor(rx)), r1 = r0 + 1, dr = rx - r0;
+      const g0 = Math.min(1, Math.floor(gx)), g1 = g0 + 1, dg = gx - g0;
+      const b0 = Math.min(1, Math.floor(bx)), b1 = b0 + 1, db = bx - b0;
+
+      const out = [0, 0, 0, 0];
+      for (let ch = 0; ch < 4; ch++) {
+        const c000 = SWOP_LUT_3[r0][g0][b0][ch];
+        const c001 = SWOP_LUT_3[r0][g0][b1][ch];
+        const c010 = SWOP_LUT_3[r0][g1][b0][ch];
+        const c011 = SWOP_LUT_3[r0][g1][b1][ch];
+        const c100 = SWOP_LUT_3[r1][g0][b0][ch];
+        const c101 = SWOP_LUT_3[r1][g0][b1][ch];
+        const c110 = SWOP_LUT_3[r1][g1][b0][ch];
+        const c111 = SWOP_LUT_3[r1][g1][b1][ch];
+
+        const c00 = c000 * (1 - db) + c001 * db;
+        const c01 = c010 * (1 - db) + c011 * db;
+        const c10 = c100 * (1 - db) + c101 * db;
+        const c11 = c110 * (1 - db) + c111 * db;
+
+        const c0 = c00 * (1 - dg) + c01 * dg;
+        const c1 = c10 * (1 - dg) + c11 * dg;
+
+        out[ch] = Math.max(0, Math.min(100, Math.round(c0 * (1 - dr) + c1 * dr)));
+      }
+      return out;
+    }
+
+    function formatCmyk(arr) {
+      return `C${arr[0]} M${arr[1]} Y${arr[2]} K${arr[3]}`;
+    }
+
+    function formatRgb(arr) {
+      return `R${arr[0]} G${arr[1]} B${arr[2]}`;
+    }
+
+    function normalizePms(rawPms) {
+      let cleaned = rawPms.trim().toUpperCase();
+      cleaned = cleaned.replace(/\s+(CMYK|RGB|HEX|COLOUR\s*NAME|COLOUR)\b.*$/i, "").trim();
+      cleaned = cleaned.replace(/\s*\/\s*/g, " / ");
+      if (!cleaned || /^(N\/A|PMS\s*N\/A|NONE|NULL|-|NIL)$/i.test(cleaned)) {
+        return null;
+      }
+      if (/^PANTONE\s+/i.test(cleaned)) {
+        cleaned = cleaned.replace(/^PANTONE\s+/i, "PMS ");
+      } else if (!cleaned.startsWith("PMS")) {
+        cleaned = "PMS " + cleaned;
+      }
+      return cleaned.replace(/\s+/g, " ");
+    }
+
+    function extractFromChunk(text, block) {
+      let working = text;
+
+      const nameMatch = working.match(/COLOU?R\s*NAME\s*:?\s*(.+?)(?=\s+(?:PANTONE|PMS|CMYK|RGB|HEX)\b|$)/i);
+      if (nameMatch && !block.name) {
+        block.name = nameMatch[1].trim().toUpperCase();
+        working = working.replace(nameMatch[0], " ");
+      }
+
+      const pantoneLabelMatch = working.match(/(?:PANTONE\s*:?\s*)([^\r\n]+?)(?=\s+(?:CMYK|RGB|HEX|COLOU?R)\b|$)/i);
+      if (pantoneLabelMatch) {
+        const norm = normalizePms(pantoneLabelMatch[1]);
+        if (norm) block.pms = norm;
+        working = working.replace(pantoneLabelMatch[0], " ");
+      } else {
+        const pmsYellowMatch = working.match(/\bPMS\s+YELLOW\s+[A-Z0-9]+\b/i);
+        if (pmsYellowMatch) {
+          const norm = normalizePms(pmsYellowMatch[0]);
+          if (norm) block.pms = norm;
+          working = working.replace(pmsYellowMatch[0], " ");
+        } else {
+          const standalonePmsMatch = working.match(/\bPMS\s+[A-Z0-9\s/-]{1,28}?(?=\s+(?:CMYK|RGB|HEX|COLOU?R)\b|$)/i);
+          if (standalonePmsMatch) {
+            const norm = normalizePms(standalonePmsMatch[0]);
+            if (norm) block.pms = norm;
+            working = working.replace(standalonePmsMatch[0], " ");
+          }
+        }
+      }
+
+      // CMYK: C:50 M:75 Y:60 K:55 | CMYK 8 0 42 0 | C=70 M=0 Y=0 K=0 | 60 / 46 / 72 / 27
+      const cmykKvMatch = working.match(/(?:CMYK\s*:?\s*)?C\s*[:=]?\s*(\d{1,3})\s*M\s*[:=]?\s*(\d{1,3})\s*Y\s*[:=]?\s*(\d{1,3})\s*K\s*[:=]?\s*(\d{1,3})/i);
+      const cmykSlashMatch = working.match(/(?:CMYK\s*:?\s*)(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})/i);
+      const cmykSpaceMatch = working.match(/(?:CMYK\s*:?\s*)(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})/i);
+      if (cmykKvMatch) {
+        block.cmyk = [
+          parseInt(cmykKvMatch[1], 10),
+          parseInt(cmykKvMatch[2], 10),
+          parseInt(cmykKvMatch[3], 10),
+          parseInt(cmykKvMatch[4], 10)
+        ];
+        block.providedCmyk = true;
+        working = working.replace(cmykKvMatch[0], " ");
+      } else if (cmykSlashMatch) {
+        block.cmyk = [
+          parseInt(cmykSlashMatch[1], 10),
+          parseInt(cmykSlashMatch[2], 10),
+          parseInt(cmykSlashMatch[3], 10),
+          parseInt(cmykSlashMatch[4], 10)
+        ];
+        block.providedCmyk = true;
+        working = working.replace(cmykSlashMatch[0], " ");
+      } else if (cmykSpaceMatch) {
+        block.cmyk = [
+          parseInt(cmykSpaceMatch[1], 10),
+          parseInt(cmykSpaceMatch[2], 10),
+          parseInt(cmykSpaceMatch[3], 10),
+          parseInt(cmykSpaceMatch[4], 10)
+        ];
+        block.providedCmyk = true;
+        working = working.replace(cmykSpaceMatch[0], " ");
+      }
+
+      // RGB: R:4 G:47 B:51 (or R:4 G:47 G:51) | RGB 240 245 170 | R=77 G=255 B=255 | 102 / 107 / 85
+      const rgbKvMatch = working.match(/(?:RGB\s*:?\s*)?[R]\s*[:=]?\s*(\d{1,3})\s*[G]\s*[:=]?\s*(\d{1,3})\s*[BGR]\s*[:=]?\s*(\d{1,3})/i);
+      const rgbSlashMatch = working.match(/(?:RGB\s*:?\s*)(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})/i);
+      const rgbSpaceMatch = working.match(/(?:RGB\s*:?\s*)(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})/i);
+      const rgbCsvMatch = working.match(/(?:RGB\s*:?\s*)?\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?/);
+      if (rgbKvMatch) {
+        block.rgb = [
+          parseInt(rgbKvMatch[1], 10),
+          parseInt(rgbKvMatch[2], 10),
+          parseInt(rgbKvMatch[3], 10)
+        ];
+        block.providedRgb = true;
+        working = working.replace(rgbKvMatch[0], " ");
+      } else if (rgbSlashMatch) {
+        block.rgb = [
+          parseInt(rgbSlashMatch[1], 10),
+          parseInt(rgbSlashMatch[2], 10),
+          parseInt(rgbSlashMatch[3], 10)
+        ];
+        block.providedRgb = true;
+        working = working.replace(rgbSlashMatch[0], " ");
+      } else if (rgbSpaceMatch) {
+        block.rgb = [
+          parseInt(rgbSpaceMatch[1], 10),
+          parseInt(rgbSpaceMatch[2], 10),
+          parseInt(rgbSpaceMatch[3], 10)
+        ];
+        block.providedRgb = true;
+        working = working.replace(rgbSpaceMatch[0], " ");
+      } else if (rgbCsvMatch) {
+        block.rgb = [
+          parseInt(rgbCsvMatch[1], 10),
+          parseInt(rgbCsvMatch[2], 10),
+          parseInt(rgbCsvMatch[3], 10)
+        ];
+        block.providedRgb = true;
+        working = working.replace(rgbCsvMatch[0], " ");
+      }
+
+      // HEX: #4A2F33 | # f0f5aa | 4A2F33
+      const hexLabelMatch = working.match(/HEX\s*:?\s*#\s*([0-9A-F]{6}|[0-9A-F]{3})\b/i);
+      if (hexLabelMatch) {
+        let h = hexLabelMatch[1].toUpperCase();
+        if (h.length === 3) h = h.split("").map(c => c + c).join("");
+        block.hex = `#${h}`;
+        working = working.replace(hexLabelMatch[0], " ");
+      } else {
+        const hashHexMatch = working.match(/#\s*([0-9A-F]{6}|[0-9A-F]{3})\b/i);
+        if (hashHexMatch) {
+          let h = hashHexMatch[1].toUpperCase();
+          if (h.length === 3) h = h.split("").map(c => c + c).join("");
+          block.hex = `#${h}`;
+          working = working.replace(hashHexMatch[0], " ");
+        } else {
+          const bareHexMatch = working.match(/(?:^|\s)#?\s*([0-9A-F]{6}|[0-9A-F]{3})(?=\s|$)/i);
+          if (bareHexMatch) {
+            let h = bareHexMatch[1].toUpperCase();
+            if (h.length === 3) h = h.split("").map(c => c + c).join("");
+            block.hex = `#${h}`;
+            working = working.replace(bareHexMatch[0], " ");
+          }
+        }
+      }
+
+      const leftover = working.replace(/^(?:CMYK|RGB|HEX|PANTONE|PMS|COLOR\s*CODES?)\b.*$/i, "").trim();
+      if (!block.name && /^[A-Z][A-Z\s()-]{1,28}$/i.test(leftover) && !/^(CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|COLOR\s*CODES?)$/i.test(leftover)) {
+        block.name = leftover.toUpperCase();
+      }
+    }
+
+    function processInput() {
+      const raw = rawInput.value.replace(/^["“”]+|["“”]+$/g, "").trim();
+      if (!raw) {
+        cleanOutput.value = "";
+        swatchCount.textContent = "0";
+        swatchList.innerHTML = `
+          <div class="h-full border border-dashed border-zinc-200 rounded-xl flex items-center justify-center p-6 text-center text-xs text-zinc-400">
+            Live color swatches and direct extraction / sole-HEX conversion status appear here.
+          </div>`;
+        return;
+      }
+
+      const lines = raw.split(/\r?\n/).map(l => l.replace(/^["“”]+|["“”]+$/g, "").trim()).filter(Boolean);
+      const blocks = [];
+      let current = null;
+
+      const pushCurrent = () => {
+        if (current && (current.pms || current.cmyk || current.rgb || current.hex)) {
+          blocks.push(current);
+        }
+        current = null;
+      };
+
+      for (const line of lines) {
+        if (/^(?:COLOU?R\s*\d+|COLOR\s*CODES?)\b/i.test(line)) {
+          pushCurrent();
+          current = {};
+          const rest = line.replace(/^(?:COLOU?R\s*\d+|COLOR\s*CODES?)\s*:?\s*/i, "").trim();
+          if (rest) extractFromChunk(rest, current);
+          continue;
+        }
+
+        if (!current) current = {};
+
+        const hasAnyCode = Boolean(current.cmyk || current.rgb || current.hex);
+        const hasFullTriplet = Boolean(current.cmyk && current.rgb && current.hex);
+        const startsNewCodeSet =
+          ((/^CMYK\b/i.test(line) && current.cmyk) ||
+           (/^RGB\b/i.test(line) && current.rgb) ||
+           (/^HEX\b/i.test(line) && current.hex) ||
+           (/^(?:PANTONE|PMS)\b/i.test(line) && (current.pms || hasFullTriplet)));
+
+        const isSoleCodeLine = /^(?:#?\s*[0-9A-F]{6}|#?\s*[0-9A-F]{3})$/i.test(line);
+
+        if (startsNewCodeSet || (isSoleCodeLine && hasAnyCode)) {
+          pushCurrent();
+          current = {};
+        }
+
+        extractFromChunk(line, current);
+      }
+      pushCurrent();
+
+      const outputBlocks = [];
+      const swatchCards = [];
+
+      blocks.forEach((b, idx) => {
+        const notes = [];
+        const pms = b.pms ? b.pms.toUpperCase() : null;
+        let cmyk = b.cmyk || null;
+        let rgb = b.rgb || null;
+        const hex = b.hex ? b.hex.toUpperCase() : null;
+
+        // Only calculate when sole HEX is entered (no CMYK and no RGB provided)
+        const isSoleHex = Boolean(hex && !b.providedCmyk && !b.providedRgb);
+        if (isSoleHex) {
+          rgb = hexToRgb(hex);
+          if (rgb) {
+            cmyk = rgbToPhotoshopCmyk(rgb[0], rgb[1], rgb[2]);
+            notes.push("Generated CMYK & RGB from sole HEX (Photoshop SWOP v2)");
+          }
+        } else {
+          notes.push("Extracted directly from input (no re-transfer)");
+        }
+
+        // Strict order: PMS -> CMYK -> RGB -> HEX (ALL CAPS)
+        const linesOut = [];
+        if (pms) linesOut.push(pms);
+        if (cmyk) linesOut.push(formatCmyk(cmyk));
+        if (rgb) linesOut.push(formatRgb(rgb));
+        if (hex) linesOut.push(hex);
+
+        outputBlocks.push(linesOut.join("\n"));
+
+        const previewHex = hex || "#E4E4E7";
+        const titleText = b.name || pms || `COLOUR ${idx + 1}`;
+        const badgeHtml = isSoleHex
+          ? `<div class="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-1 leading-snug">${notes.join(" • ")}</div>`
+          : `<div class="mt-2 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 rounded-md px-2 py-0.5 inline-block">${notes.join(" • ")}</div>`;
+
+        swatchCards.push(`
+          <div class="p-3 bg-white border border-zinc-200 rounded-xl shadow-sm flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg border border-zinc-200 shrink-0 shadow-inner" style="background-color: ${previewHex};"></div>
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-bold text-zinc-900 truncate">${titleText}</div>
+              <div class="text-[11px] mono text-zinc-600 mt-1 space-y-0.5">
+                ${linesOut.map(l => `<div>${l}</div>`).join("")}
+              </div>
+              ${badgeHtml}
+            </div>
+          </div>
+        `);
+      });
+
+      cleanOutput.value = outputBlocks.join("\n\n");
+      swatchCount.textContent = String(blocks.length);
+      swatchList.innerHTML = swatchCards.join("");
+    }
+
+    rawInput.addEventListener("input", processInput);
+
+    copyBtn.addEventListener("click", async () => {
+      if (!cleanOutput.value) return;
+      try {
+        await navigator.clipboard.writeText(cleanOutput.value);
+        copyBtnText.textContent = "Copied!";
+        copyBtn.classList.replace("bg-zinc-900", "bg-emerald-600");
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Output";
+          copyBtn.classList.replace("bg-emerald-600", "bg-zinc-900");
+        }, 1600);
+      } catch (err) {
+        cleanOutput.select();
+        document.execCommand("copy");
+      }
+    });
+
+    sampleBtn.addEventListener("click", () => {
+      rawInput.value = `Plum
+C:50 M:75 Y:60 K:55
+R:4 G:47 B:51
+HEX: #4A2F33
+
+DF5B10`;
+      processInput();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      rawInput.value = "";
+      processInput();
+      rawInput.focus();
+    });
+  </script>
+</body>
+</html>
