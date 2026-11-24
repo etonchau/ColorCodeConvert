@@ -245,10 +245,12 @@
         id="rawInput"
         placeholder="Paste color blocks or sole HEX codes...
 
-Plum
-C:50 M:75 Y:60 K:55
-R:4 G:47 B:51
-HEX: #4A2F33
+Colour 1
+Colour Name: Moss Khaki
+PANTONE: N/A
+CMYK: C0 M7 Y55 K53
+RGB: R121 G112 B55
+HEX: #797037
 
 DF5B10"
       ></textarea>
@@ -373,8 +375,10 @@ DF5B10"
     function normalizePms(rawPms) {
       let cleaned = rawPms.trim().toUpperCase();
       cleaned = cleaned.replace(/\s+(CMYK|RGB|HEX|COLOUR\s*NAME|COLOUR)\b.*$/i, "").trim();
+      if (!cleaned || /^(?:PMS\s*)?N\s*\/\s*A$/i.test(cleaned) || /^(?:PMS\s*)?(?:N\/A|NONE|NULL|-|NIL)$/i.test(cleaned)) {
+        return null;
+      }
       cleaned = cleaned.replace(/\s*\/\s*/g, " / ");
-      if (!cleaned || /^(N\/A|PMS\s*N\/A|NONE|NULL|-|NIL)$/i.test(cleaned)) return null;
       if (/^PANTONE\s+/i.test(cleaned)) {
         cleaned = cleaned.replace(/^PANTONE\s+/i, "PMS ");
       } else if (!cleaned.startsWith("PMS")) {
@@ -477,7 +481,7 @@ DF5B10"
       }
 
       const leftover = working.replace(/^(?:CMYK|RGB|HEX|PANTONE|PMS|COLOR\s*CODES?)\b.*$/i, "").trim();
-      if (!block.name && /^[A-Z][A-Z\s()-]{1,28}$/i.test(leftover) && !/^(CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|COLOR\s*CODES?)$/i.test(leftover)) {
+      if (!block.name && /^[A-Z][A-Z\s()-]{1,28}$/i.test(leftover) && !/^(CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|N\s*\/\s*A|COLOR\s*CODES?)$/i.test(leftover)) {
         block.name = leftover.toUpperCase();
       }
     }
@@ -491,7 +495,6 @@ DF5B10"
         return;
       }
 
-      // Preserve empty lines as block separators
       const rawLines = raw.split(/\r?\n/).map((l) => l.replace(/^["“”]+|["“”]+$/g, "").trim());
       const blocks = [];
       let current = null;
@@ -523,7 +526,7 @@ DF5B10"
         const hasFullTriplet = Boolean(current.cmyk && current.rgb && current.hex);
         const isColorTitleLine =
           /^[A-Z][A-Z\s()-]{1,28}$/i.test(line) &&
-          !/^(?:CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|COLOR\s*CODES?)\b/i.test(line) &&
+          !/^(?:CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|N\s*\/\s*A|COLOR\s*CODES?)\b/i.test(line) &&
           !/^[CMYKRGB0-9\s:/=-]+$/i.test(line);
 
         const startsNewCodeSet =
@@ -606,10 +609,12 @@ DF5B10"
     });
 
     sampleBtn.addEventListener("click", () => {
-      rawInput.value = `Plum
-C:50 M:75 Y:60 K:55
-R:4 G:47 B:51
-HEX: #4A2F33
+      rawInput.value = `Colour 1
+Colour Name: Moss Khaki
+PANTONE: N/A
+CMYK: C0 M7 Y55 K53
+RGB: R121 G112 B55
+HEX: #797037
 
 DF5B10`;
       processInput();
