@@ -32,7 +32,7 @@
   <header class="bg-white border-b border-zinc-200 sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- Exact 128x120 (16:15) Character Icon Preserving Full Aspect Ratio -->
+        <!-- Preserving full aspect ratio of uploaded character image -->
         <div class="h-10 flex items-center justify-center shrink-0">
           <img
             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAB4CAYAAAA6//q/AAAFZUlEQVR4Ae3BUbKDOBZEwVO7qIi7/3XWfHRMvHYjYRtLBgyZKpvbdalsbtelsrldl8rmdl0qm9t1qWxu16WyuV2XyuZ2XSqb23WpbG7XpbK5qADi4lQ2FxT+IS5OZXNB4Y+4MJXNBYU/4sJUNhcU/ogLU9lcUHgkLkplczGhTVyQyuZiQp+4GJXNhYTnxIWobC4ivEdcgMrmIsJ7xAWobH5c+Iz4YSqbHxfaxJ/QJ36YyuZHhXXiUXhO/BiVzQ8Kz4ml8DrxA1Q2PyS8RvSF94gTU9mcXHiPeE3YRpyIyubEwuvENmEbcQIqmxMK7xGfCduJA1PZnEh4TswTthMHpLI5ibBOfF94nzgQlc0JhHViP+F94iBUNgcX2sTxhNeJA1DZHFRYJ44tPCd2prI5qNAnziGsEztT2RxUaBPnEtaJHalsDiq0ifMJfWJHKpsDCm3inEKf2JHK5oBCmziv0CZ2pLI5oNAmziv0iZ2obA4qLInzCn1iJyqbgwpt4pxCn9iJyuaAwjpxPqFP7ERls7OwjTiPsE7sRGWzk/A5cXzhObETlc2XhfHEMYXnxI5UNl8U5hDHFNaJnalsviRsJ/6EJXEs4T1iJyqbLwnvEecTthM7UNl8QXiPOKfwOfFFKpvJwmvEuYWxxBeobCYL68TvCGOJyVQ2E4V14prC68REKpuJQpu4/V9YJyZS2UwS+sTt38I6MYnKZpLQJ27/FdaJCVQ2k4Q+cWsJfWIClc0koU/cWsI6MZjKZpLQJ249oU8MprKZJPSJ+cIf0Rb+iGMIfWIwlc0koU+8LiyJ58IfsRQeiWMIfWIwlc1EoU08F54TbeGRaAt/xGvCkhgn9InBVDYThTaxLrxOLIVHYiksiaXwHvGZ0CcGU9lMFPpEX3ideBQeibawJJbCe8RnQp8YTGUzUegTfeF14lF4JNrCklgK7xGfCX1iMJXNZKFPtIXXiKXwSLSFJbEU3iO2C+vEYCqbLwhtoi/0ib7wSPSFR2IpvEdsF9aJwVQ2XxDaxFhhSfSFR2IpvE5sF54Tg6lsviQsibHCkugLj8R+wjoxgcpmsrBOjBMeib6wJPYRnhMTqGwmCa8R44RHoi8sie8Lz4lJVDYThNeIscIj0ReWxPeE14iJVDaDhdeJscKSeBT6xHzhPWIilc1gYZ2YJ3xGzBXeIyZT2QwU1om5wnZinrCNmExlM0joE98TthHzhO3ERCqbAcI68V3hPWK+sJ2YRGUzQGgT+wmvE/sIrxGTqGw+FPrE7VVhnZhAZfOh0CZuW4Q+MZjK5kNhSdw+EfrEQCqbD4Ql8X3hH+I3hD4xkMpmo9AmvissifMLfWIQlc1GYUl8X5hD7Cv0iUFUNhuFJfF9YR6xr9AnBlDZbBDaxPeFecS+Qp8YQGWzUVgS+wljiWMIbWIAlc0GoU3sL3xOHEdoEwOobDYIbeI4wjbiWEKbGEBls0FoE8cTnhPHFdrEACqbDUKbuI0W2sQAKpsNQpu4jRbaxAAqmw1Cm7iNFtrEACqbDUKbuI0W2sQAKpuNQpu4jRTaxAAqm41Cm7iNFNrEACqbjUKfuI0S2sQAKpsPhDZxGyW0iQFUNh8KbeI2QmgTA6hsPhT6xO0ToU0MorIZIKwTty1CmxhEZTNIeJ24PRPaxEAqm0HCNuL2X6FPDKSyGSh8TlxXeE4MpLKZJIwjfl94TgymspkszCXOLbxGTKCy+ZKwD3E84X1iApXNDsIxiO8J24iJVDY7Crc1YjKVzQGE27+JL1HZHFi4HvFFKpsTCb9H7Ehl8yPCOYgDUdlcRNiPOCiVze26VDa361LZ3K5LZXO7LpXN7bpUNrfr+h9TCRqwGTOzVgAAAABJRU5ErkJggg=="
@@ -63,22 +63,23 @@
     <section class="lg:col-span-5 flex flex-col gap-3">
       <div class="flex items-center justify-between">
         <label for="rawInput" class="text-sm font-semibold text-zinc-800">Raw Color Input</label>
-        <span class="text-xs text-zinc-400">Supports full blocks or sole HEX / RGB / CMYK</span>
+        <span class="text-xs text-zinc-400">Supports messy/inline blocks & sole codes</span>
       </div>
       <textarea
         id="rawInput"
-        placeholder='Paste full color blocks OR sole codes here...
+        placeholder='Paste messy blocks, inline specs, or sole codes (with or without #)...
 
-Examples:
+Example:
 Colour 1
-Colour Name: Grey (Kraft) Paper
-PANTONE: PMS WARM GRAY 2 UC
-CMYK: C10 M10 Y10 K15
-RGB: R197 G193 B192
-HEX: #C5C1C0
+Colour Name: Butter Yellow PANTONE: Pantone 9121 U CMYK: C0 M0 Y30 K0 RGB: R255 G251 B199 HEX: #FFFBC7
+Colour 3
+Colour Name: Soil Brown PANTONE: none
+CMYK: C30 M70 Y70 K0 RGB: R187 G101 B75
+HEX: #BB654B
 
-Or single codes:
-#797037
+Or sole codes:
+69BD83
+#94C2E7
 R148 G194 B231
 C36 M16 Y0 K9'
         class="w-full flex-1 min-h-[380px] p-4 rounded-xl border border-zinc-200 bg-white text-sm mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent resize-y shadow-sm"
@@ -88,7 +89,7 @@ C36 M16 Y0 K9'
     <!-- Middle Column: Clean Output -->
     <section class="lg:col-span-4 flex flex-col gap-3">
       <div class="flex items-center justify-between">
-        <label for="cleanOutput" class="text-sm font-semibold text-zinc-800">Cleaned Output (ALL CAPS)</label>
+        <label for="cleanOutput" class="text-sm font-semibold text-zinc-800">Cleaned Output (PMS → CMYK → RGB → HEX)</label>
         <button
           id="copyBtn"
           class="px-3 py-1 text-xs font-semibold text-white bg-zinc-900 hover:bg-zinc-800 active:scale-[0.99] rounded-lg transition flex items-center gap-1.5 shadow-sm"
@@ -99,7 +100,7 @@ C36 M16 Y0 K9'
       <textarea
         id="cleanOutput"
         readonly
-        placeholder="Cleaned uppercase color codes will appear here automatically..."
+        placeholder="Cleaned uppercase color codes in PMS → CMYK → RGB → HEX order will appear here..."
         class="w-full flex-1 min-h-[380px] p-4 rounded-xl border border-zinc-200 bg-zinc-50 text-sm mono leading-relaxed text-zinc-900 focus:outline-none resize-y shadow-sm"
       ></textarea>
     </section>
@@ -120,25 +121,24 @@ C36 M16 Y0 K9'
   </main>
 
   <script>
-    // Common Pantone reference database for verification & lookup
     const PMS_DB = {
+      "PMS 9121 U":  { cmyk: "C0 M0 Y30 K0",   rgb: [255, 251, 199], hex: "#FFFBC7" },
+      "PMS 2253 U":  { cmyk: "C25 M0 Y35 K0",  rgb: [200, 227, 189], hex: "#C8E3BD" },
       "PMS WARM GRAY 2 UC": { cmyk: "C10 M10 Y10 K15", rgb: [197, 193, 192], hex: "#C5C1C0" },
       "PMS WARM GRAY 2 C":  { cmyk: "C16 M18 Y20 K0",  rgb: [215, 210, 203], hex: "#D7D2CB" },
       "PMS WARM GRAY 2 U":  { cmyk: "C10 M10 Y10 K15", rgb: [197, 193, 192], hex: "#C5C1C0" },
-      "PMS 391 C":  { cmyk: "C0 M3 Y100 K40", rgb: [178, 161, 0],   hex: "#B2A100" },
-      "PMS 304 C":  { cmyk: "C34 M6 Y0 K9",   rgb: [155, 211, 221], hex: "#9BD3DD" },
-      "PMS 164 C":  { cmyk: "C0 M50 Y75 K0",  rgb: [243, 150, 85],  hex: "#F39655" },
-      "PMS 2635 C": { cmyk: "C13 M21 Y0 K11", rgb: [207, 193, 214], hex: "#CFC1D6" },
-      "PMS 1665 C": { cmyk: "C0 M69 Y98 K14", rgb: [211, 95, 13],   hex: "#D35F0D" },
-      "PMS 723 C":  { cmyk: "C0 M41 Y80 K30", rgb: [189, 131, 50],  hex: "#BD8332" },
-      "PMS 375 C":  { cmyk: "C49 M0 Y100 K0", rgb: [152, 194, 29],  hex: "#98C21D" },
-      "PMS 204 C":  { cmyk: "C5 M61 Y9 K0",   rgb: [231, 130, 169], hex: "#E782A9" },
-      "PMS 1575 C": { cmyk: "C0 M50 Y80 K0",  rgb: [243, 149, 63],  hex: "#F3953F" },
-      "PMS 3935 C": { cmyk: "C0 M4 Y62 K5",   rgb: [249, 228, 119], hex: "#F9E477" },
-      "PMS 9560 C": { cmyk: "C7 M0 Y8 K6",    rgb: [231, 237, 230], hex: "#E7EDE6" },
-      "PMS 427 C":  { cmyk: "C2 M0 Y0 K17",   rgb: [220, 222, 223], hex: "#DCDEDF" },
-      "PMS BLACK C": { cmyk: "C0 M0 Y0 K100", rgb: [45, 41, 38],    hex: "#2D2926" },
-      "PMS WHITE":   { cmyk: "C0 M0 Y0 K0",   rgb: [255, 255, 255], hex: "#FFFFFF" }
+      "PMS 391 C":   { cmyk: "C0 M3 Y100 K40", rgb: [178, 161, 0],   hex: "#B2A100" },
+      "PMS 304 C":   { cmyk: "C34 M6 Y0 K9",   rgb: [155, 211, 221], hex: "#9BD3DD" },
+      "PMS 164 C":   { cmyk: "C0 M50 Y75 K0",  rgb: [243, 150, 85],  hex: "#F39655" },
+      "PMS 2635 C":  { cmyk: "C13 M21 Y0 K11", rgb: [207, 193, 214], hex: "#CFC1D6" },
+      "PMS 1665 C":  { cmyk: "C0 M69 Y98 K14", rgb: [211, 95, 13],   hex: "#D35F0D" },
+      "PMS 723 C":   { cmyk: "C0 M41 Y80 K30", rgb: [189, 131, 50],  hex: "#BD8332" },
+      "PMS 375 C":   { cmyk: "C49 M0 Y100 K0", rgb: [152, 194, 29],  hex: "#98C21D" },
+      "PMS 204 C":   { cmyk: "C5 M61 Y9 K0",   rgb: [231, 130, 169], hex: "#E782A9" },
+      "PMS 1575 C":  { cmyk: "C0 M50 Y80 K0",  rgb: [243, 149, 63],  hex: "#F3953F" },
+      "PMS 3935 C":  { cmyk: "C0 M4 Y62 K5",   rgb: [249, 228, 119], hex: "#F9E477" },
+      "PMS 9560 C":  { cmyk: "C7 M0 Y8 K6",    rgb: [231, 237, 230], hex: "#E7EDE6" },
+      "PMS 427 C":   { cmyk: "C2 M0 Y0 K17",   rgb: [220, 222, 223], hex: "#DCDEDF" }
     };
 
     const rawInput = document.getElementById("rawInput");
@@ -150,7 +150,6 @@ C36 M16 Y0 K9'
     const sampleBtn = document.getElementById("sampleBtn");
     const clearBtn = document.getElementById("clearBtn");
 
-    // Color math helpers
     function rgbToHex(r, g, b) {
       const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
       return "#" + [clamp(r), clamp(g), clamp(b)]
@@ -161,9 +160,7 @@ C36 M16 Y0 K9'
 
     function hexToRgb(hex) {
       let clean = hex.replace(/^#/, "").trim();
-      if (clean.length === 3) {
-        clean = clean.split("").map((c) => c + c).join("");
-      }
+      if (clean.length === 3) clean = clean.split("").map(c => c + c).join("");
       if (!/^[0-9A-Fa-f]{6}$/.test(clean)) return null;
       const num = parseInt(clean, 16);
       return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
@@ -198,67 +195,107 @@ C36 M16 Y0 K9'
       return `R${arr[0]} G${arr[1]} B${arr[2]}`;
     }
 
-    function parseLineTokens(line) {
-      const upper = line.toUpperCase().trim();
-      const res = {};
+    function normalizePms(rawPms) {
+      let cleaned = rawPms.trim().toUpperCase();
+      // Remove trailing label words if inline (e.g., "PANTONE 9121 U CMYK:" -> "PANTONE 9121 U")
+      cleaned = cleaned.replace(/\s+(CMYK|RGB|HEX|COLOUR\s*NAME|COLOUR)\b.*$/i, "").trim();
+      if (!cleaned || /^(N\/A|PMS\s*N\/A|NONE|NULL|-|NIL)$/i.test(cleaned)) {
+        return null;
+      }
+      if (/^PANTONE\s+/i.test(cleaned)) {
+        cleaned = cleaned.replace(/^PANTONE\s+/i, "PMS ");
+      } else if (!cleaned.startsWith("PMS")) {
+        cleaned = "PMS " + cleaned;
+      }
+      return cleaned.replace(/\s+/g, " ");
+    }
 
-      // Check PANTONE / PMS
-      if (/^(PANTONE|PMS)\b/i.test(upper)) {
-        const val = upper.replace(/^(PANTONE\s*:\s*)/i, "").trim();
-        if (val === "N/A" || val === "PMS N/A" || val === "NONE" || val === "-") {
-          res.pmsNA = true;
-        } else {
-          res.pms = val.startsWith("PMS") ? val : `PMS ${val}`;
-        }
-        return res;
+    // Extract tokens from any chunk (even if CMYK, RGB, HEX, PANTONE are all on one line)
+    function extractFromChunk(text, block) {
+      let working = text;
+
+      // 1. Check Colour Name: ... (stop before PANTONE / CMYK / RGB / HEX if on same line)
+      const nameMatch = working.match(/COLOU?R\s*NAME\s*:\s*(.+?)(?=\s+(?:PANTONE|PMS|CMYK|RGB|HEX)\b|$)/i);
+      if (nameMatch && !block.name) {
+        block.name = nameMatch[1].trim().toUpperCase();
+        working = working.replace(nameMatch[0], " ");
       }
 
-      // Check CMYK
-      const cmykMatch = upper.match(/(?:CMYK\s*:\s*)?C\s*(\d{1,3})\s*M\s*(\d{1,3})\s*Y\s*(\d{1,3})\s*K\s*(\d{1,3})/i);
+      // 2. Check PANTONE: ... or PMS ...
+      const pantoneLabelMatch = working.match(/(?:PANTONE\s*:?\s*)([^\r\n]+?)(?=\s+(?:CMYK|RGB|HEX|COLOU?R)\b|$)/i);
+      if (pantoneLabelMatch) {
+        const norm = normalizePms(pantoneLabelMatch[1]);
+        if (norm) block.pms = norm;
+        working = working.replace(pantoneLabelMatch[0], " ");
+      } else {
+        const standalonePmsMatch = working.match(/\bPMS\s+[A-Z0-9\s-]{2,20}?(?=\s+(?:CMYK|RGB|HEX)\b|$)/i);
+        if (standalonePmsMatch) {
+          const norm = normalizePms(standalonePmsMatch[0]);
+          if (norm) block.pms = norm;
+          working = working.replace(standalonePmsMatch[0], " ");
+        }
+      }
+
+      // 3. Check CMYK: C0 M0 Y30 K0 or C0 M0 Y30 K0
+      const cmykMatch = working.match(/(?:CMYK\s*:?\s*)?C\s*(\d{1,3})\s*M\s*(\d{1,3})\s*Y\s*(\d{1,3})\s*K\s*(\d{1,3})/i);
       if (cmykMatch) {
-        res.cmyk = [
+        block.cmyk = [
           parseInt(cmykMatch[1], 10),
           parseInt(cmykMatch[2], 10),
           parseInt(cmykMatch[3], 10),
           parseInt(cmykMatch[4], 10)
         ];
-        return res;
+        working = working.replace(cmykMatch[0], " ");
       }
 
-      // Check RGB (R197 G193 B192 or 197, 193, 192)
-      const rgbMatch = upper.match(/(?:RGB\s*:\s*)?R\s*(\d{1,3})\s*G\s*(\d{1,3})\s*B\s*(\d{1,3})/i);
+      // 4. Check RGB: R255 G251 B199 or 255, 251, 199
+      const rgbMatch = working.match(/(?:RGB\s*:?\s*)?R\s*(\d{1,3})\s*G\s*(\d{1,3})\s*B\s*(\d{1,3})/i);
       if (rgbMatch) {
-        res.rgb = [
+        block.rgb = [
           parseInt(rgbMatch[1], 10),
           parseInt(rgbMatch[2], 10),
           parseInt(rgbMatch[3], 10)
         ];
-        return res;
-      }
-      const rgbCsvMatch = upper.match(/^(?:RGB\s*:\s*)?\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?$/);
-      if (rgbCsvMatch) {
-        res.rgb = [
-          parseInt(rgbCsvMatch[1], 10),
-          parseInt(rgbCsvMatch[2], 10),
-          parseInt(rgbCsvMatch[3], 10)
-        ];
-        return res;
+        working = working.replace(rgbMatch[0], " ");
+      } else {
+        const rgbCsv = working.match(/(?:RGB\s*:?\s*)?\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?/);
+        if (rgbCsv) {
+          block.rgb = [
+            parseInt(rgbCsv[1], 10),
+            parseInt(rgbCsv[2], 10),
+            parseInt(rgbCsv[3], 10)
+          ];
+          working = working.replace(rgbCsv[0], " ");
+        }
       }
 
-      // Check HEX (#C5C1C0 or C5C1C0)
-      const hexMatch = upper.match(/^(?:HEX\s*:\s*)?#?([0-9A-F]{6}|[0-9A-F]{3})$/i);
-      if (hexMatch) {
-        let h = hexMatch[1].toUpperCase();
+      // 5. Check HEX: #FFFBC7 or 69BD83 (with or without #)
+      const hexLabelMatch = working.match(/HEX\s*:?\s*#?([0-9A-F]{6}|[0-9A-F]{3})\b/i);
+      if (hexLabelMatch) {
+        let h = hexLabelMatch[1].toUpperCase();
         if (h.length === 3) h = h.split("").map(c => c + c).join("");
-        res.hex = `#${h}`;
-        return res;
+        block.hex = `#${h}`;
+        working = working.replace(hexLabelMatch[0], " ");
+      } else {
+        // Standalone #HEX or 6-digit hex token (avoiding PMS numbers)
+        const hashHexMatch = working.match(/#([0-9A-F]{6}|[0-9A-F]{3})\b/i);
+        if (hashHexMatch) {
+          let h = hashHexMatch[1].toUpperCase();
+          if (h.length === 3) h = h.split("").map(c => c + c).join("");
+          block.hex = `#${h}`;
+          working = working.replace(hashHexMatch[0], " ");
+        } else {
+          // Pure 6-char hex token on its own line or word boundary (must contain at least one A-F or be standalone line)
+          const bareHexMatch = working.match(/(?:^|\s)([0-9A-F]{6})(?=\s|$)/i);
+          if (bareHexMatch) {
+            block.hex = `#${bareHexMatch[1].toUpperCase()}`;
+            working = working.replace(bareHexMatch[0], " ");
+          }
+        }
       }
-
-      return null;
     }
 
     function processInput() {
-      // Strip surrounding quotes from entire input or lines
       const raw = rawInput.value.replace(/^["“”]+|["“”]+$/g, "").trim();
       if (!raw) {
         cleanOutput.value = "";
@@ -270,9 +307,8 @@ C36 M16 Y0 K9'
         return;
       }
 
-      // Split into logical blocks: either separated by blank lines OR triggered by "Colour X" headers OR standalone single-code lines
-      const rawLines = raw.split(/\r?\n/).map(l => l.replace(/^["“”]+|["“”]+$/g, "").trim()).filter(l => l.length > 0);
-      
+      // Split text by "Colour X" / "Color X" headers so inline multi-field lines stay grouped per colour
+      const lines = raw.split(/\r?\n/).map(l => l.replace(/^["“”]+|["“”]+$/g, "").trim()).filter(Boolean);
       const blocks = [];
       let current = null;
 
@@ -283,40 +319,32 @@ C36 M16 Y0 K9'
         current = null;
       };
 
-      for (const line of rawLines) {
-        // Detect block header like "Colour 1" or "Color 2"
+      for (const line of lines) {
         if (/^COLOU?R\s*\d+\b/i.test(line)) {
           pushCurrent();
-          current = { label: line.toUpperCase() };
-          continue;
-        }
-        // Detect "Colour Name: ..."
-        if (/^COLOU?R\s*NAME\s*:/i.test(line)) {
-          if (!current) current = {};
-          current.name = line.replace(/^COLOU?R\s*NAME\s*:\s*/i, "").trim().toUpperCase();
-          continue;
-        }
-
-        const parsed = parseLineTokens(line);
-        if (!parsed) continue;
-
-        if (!current) {
           current = {};
-        } else {
-          // If current already has the same field type, start a new swatch block (handles back-to-back sole codes)
-          if (
-            (parsed.pms && current.pms) ||
-            (parsed.pmsNA && (current.pms || current.pmsNA)) ||
-            (parsed.cmyk && current.cmyk) ||
-            (parsed.rgb && current.rgb) ||
-            (parsed.hex && current.hex)
-          ) {
-            pushCurrent();
-            current = {};
-          }
+          // In case specs appear on the same line after Colour 1
+          const rest = line.replace(/^COLOU?R\s*\d+\b/i, "").trim();
+          if (rest) extractFromChunk(rest, current);
+          continue;
         }
 
-        Object.assign(current, parsed);
+        if (!current) current = {};
+
+        // If a new colour's specs start while current already has CMYK/RGB/HEX and this line introduces a new CMYK/RGB/HEX or PANTONE
+        const hasAnyCode = Boolean(current.cmyk || current.rgb || current.hex);
+        const startsNewCodeSet = /^(?:PANTONE|PMS|CMYK|RGB|HEX)\b/i.test(line) &&
+          ((/^CMYK\b/i.test(line) && current.cmyk) ||
+           (/^RGB\b/i.test(line) && current.rgb) ||
+           (/^HEX\b/i.test(line) && current.hex) ||
+           (/^(?:PANTONE|PMS)\b/i.test(line) && (current.pms || hasAnyCode)));
+
+        if (startsNewCodeSet) {
+          pushCurrent();
+          current = {};
+        }
+
+        extractFromChunk(line, current);
       }
       pushCurrent();
 
@@ -330,45 +358,46 @@ C36 M16 Y0 K9'
         let rgb = b.rgb || null;
         let hex = b.hex || null;
 
-        // 1. If PMS is present and in DB, verify/fill missing values
+        // PMS lookup if missing conversion data
         if (pms && PMS_DB[pms]) {
           const ref = PMS_DB[pms];
           if (!cmyk) {
             cmyk = ref.cmyk.match(/\d+/g).map(Number);
-            notes.push(`Auto-filled CMYK from ${pms}`);
+            notes.push(`Matched CMYK from ${pms}`);
           }
           if (!rgb && !hex) {
             rgb = [...ref.rgb];
             hex = ref.hex;
-            notes.push(`Auto-filled RGB/HEX from ${pms}`);
+            notes.push(`Matched RGB & HEX from ${pms}`);
           }
         }
 
-        // 2. Align missing codes from whatever sole or partial code was provided
+        // Align RGB <-> HEX
         if (rgb && !hex) {
           hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-          notes.push(`Generated HEX ${hex} from RGB`);
+          notes.push(`Generated ${hex} from RGB`);
         } else if (hex && !rgb) {
           rgb = hexToRgb(hex);
-          if (rgb) notes.push(`Generated RGB ${formatRgb(rgb)} from HEX`);
+          if (rgb) notes.push(`Generated ${formatRgb(rgb)} from HEX`);
         } else if (rgb && hex) {
           const expectedHex = rgbToHex(rgb[0], rgb[1], rgb[2]);
           if (expectedHex !== hex) {
-            notes.push(`Fixed HEX ${hex} → ${expectedHex} to match RGB`);
+            notes.push(`HEX ${hex} → ${expectedHex} (RGB match)`);
             hex = expectedHex;
           }
         }
 
+        // Align CMYK <-> RGB/HEX
         if (!cmyk && rgb) {
           cmyk = rgbToCmyk(rgb[0], rgb[1], rgb[2]);
-          notes.push(`Generated CMYK ${formatCmyk(cmyk)} from RGB`);
+          notes.push(`Generated ${formatCmyk(cmyk)} from RGB`);
         } else if (cmyk && !rgb) {
           rgb = cmykToRgb(cmyk[0], cmyk[1], cmyk[2], cmyk[3]);
           hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-          notes.push(`Generated aligned RGB & HEX from CMYK`);
+          notes.push(`Generated RGB & HEX from CMYK`);
         }
 
-        // Build clean ALL CAPS output lines (excluding N/A and labels)
+        // Strict chronological order: PMS -> CMYK -> RGB -> HEX (ALL CAPS, ignoring N/A / none)
         const linesOut = [];
         if (pms) linesOut.push(pms.toUpperCase());
         if (cmyk) linesOut.push(formatCmyk(cmyk));
@@ -377,12 +406,11 @@ C36 M16 Y0 K9'
 
         outputBlocks.push(linesOut.join("\n"));
 
-        // Build Swatch Preview Card
         const previewHex = hex || "#E4E4E7";
-        const titleText = b.name || pms || `SWATCH ${idx + 1}`;
+        const titleText = b.name || pms || `COLOUR ${idx + 1}`;
         const badgeHtml = notes.length > 0
           ? `<div class="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-1 leading-snug">${notes.join(" • ")}</div>`
-          : `<div class="mt-2 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 rounded-md px-2 py-0.5 inline-block">Aligned & Verified</div>`;
+          : `<div class="mt-2 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 rounded-md px-2 py-0.5 inline-block">Verified & Ordered</div>`;
 
         swatchCards.push(`
           <div class="p-3 bg-white border border-zinc-200 rounded-xl shadow-sm flex items-start gap-3">
@@ -422,25 +450,21 @@ C36 M16 Y0 K9'
     });
 
     sampleBtn.addEventListener("click", () => {
-      rawInput.value = `"Colour 1 
-Colour Name: Grey (Kraft) Paper
-PANTONE: PMS WARM GRAY 2 UC
-CMYK: C10 M10 Y10 K15
-RGB: R197 G193 B192
-HEX: #C5C1C0
-
+      rawInput.value = `Colour 1
+Colour Name: Butter Yellow PANTONE: Pantone 9121 U CMYK: C0 M0 Y30 K0 RGB: R255 G251 B199 HEX: #FFFBC7
 Colour 2
-Colour Name: Moss Khaki
-PANTONE: N/A
-CMYK: C0 M7 Y55 K53
-RGB: R121 G112 B55
-HEX: #797037
-
-#94c2e7
-
-R131 G88 B158
-
-C0 M42 Y63 K26"`;
+Colour Name: Mint Green PANTONE: Pantone 2253 U CMYK: C25 M0 Y35 K0 RGB: R200 G227 B189 HEX: #C8E3BD
+Colour 3
+Colour Name: Soil Brown PANTONE: none
+CMYK: C30 M70 Y70 K0 RGB: R187 G101 B75
+                
+HEX: #BB654B
+Colour 4
+Colour Name: Leaf Green PANTONE: none
+CMYK: C60 M0 Y60 K0 RGB: R105 G189 B131 HEX: #69BD83
+Colour 5
+Colour Name: Diary Blue PANTONE: none
+CMYK: C70 M0 Y0 K0 RGB: R0 G185 B239 HEX: #00B9EF`;
       processInput();
     });
 
