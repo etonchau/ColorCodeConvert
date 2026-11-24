@@ -245,10 +245,11 @@
         id="rawInput"
         placeholder="Paste color blocks or sole HEX codes...
 
-Black - outlines and typography
-C0 M0 Y0 K100
-R0 G0 B0
-#000000
+Colour Name: Lime Green
+PANTONE: 2287 C
+CMYK: 54, 0, 100, 23
+RGB: 91, 197, 0
+HEX: #5BC500
 
 DF5B10"
       ></textarea>
@@ -415,13 +416,19 @@ DF5B10"
         }
       }
 
+      // CMYK: C:50 M:75 Y:60 K:55 | CMYK: 54, 0, 100, 23 | CMYK 8 0 42 0 | 60 / 46 / 72 / 27
       const cmykKvMatch = working.match(/(?:CMYK\s*:?\s*)?C\s*[:=]?\s*(\d{1,3})\s*M\s*[:=]?\s*(\d{1,3})\s*Y\s*[:=]?\s*(\d{1,3})\s*K\s*[:=]?\s*(\d{1,3})/i);
+      const cmykCsvMatch = working.match(/(?:CMYK\s*:?\s*)?\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?/i);
       const cmykSlashMatch = working.match(/(?:CMYK\s*:?\s*)(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})/i);
       const cmykSpaceMatch = working.match(/(?:CMYK\s*:?\s*)(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})/i);
       if (cmykKvMatch) {
         block.cmyk = [Number(cmykKvMatch[1]), Number(cmykKvMatch[2]), Number(cmykKvMatch[3]), Number(cmykKvMatch[4])];
         block.providedCmyk = true;
         working = working.replace(cmykKvMatch[0], " ");
+      } else if (cmykCsvMatch) {
+        block.cmyk = [Number(cmykCsvMatch[1]), Number(cmykCsvMatch[2]), Number(cmykCsvMatch[3]), Number(cmykCsvMatch[4])];
+        block.providedCmyk = true;
+        working = working.replace(cmykCsvMatch[0], " ");
       } else if (cmykSlashMatch) {
         block.cmyk = [Number(cmykSlashMatch[1]), Number(cmykSlashMatch[2]), Number(cmykSlashMatch[3]), Number(cmykSlashMatch[4])];
         block.providedCmyk = true;
@@ -432,14 +439,19 @@ DF5B10"
         working = working.replace(cmykSpaceMatch[0], " ");
       }
 
+      // RGB: R91 G197 B0 | RGB: 91, 197, 0 | RGB 240 245 170 | 102 / 107 / 85
       const rgbKvMatch = working.match(/(?:RGB\s*:?\s*)?\bR\s*[:=]?\s*(\d{1,3})\s*G\s*[:=]?\s*(\d{1,3})\s*[BGR]\s*[:=]?\s*(\d{1,3})\b/i);
+      const rgbCsvMatch = working.match(/(?:RGB\s*:?\s*)\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?/i);
       const rgbSlashMatch = working.match(/(?:RGB\s*:?\s*)(\d{1,3})\s*\/\s*(\d{1,3})\s*\/\s*(\d{1,3})/i);
       const rgbSpaceMatch = working.match(/(?:RGB\s*:?\s*)(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})/i);
-      const rgbCsvMatch = working.match(/(?:RGB\s*:?\s*)?\(?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?/);
       if (rgbKvMatch) {
         block.rgb = [Number(rgbKvMatch[1]), Number(rgbKvMatch[2]), Number(rgbKvMatch[3])];
         block.providedRgb = true;
         working = working.replace(rgbKvMatch[0], " ");
+      } else if (rgbCsvMatch) {
+        block.rgb = [Number(rgbCsvMatch[1]), Number(rgbCsvMatch[2]), Number(rgbCsvMatch[3])];
+        block.providedRgb = true;
+        working = working.replace(rgbCsvMatch[0], " ");
       } else if (rgbSlashMatch) {
         block.rgb = [Number(rgbSlashMatch[1]), Number(rgbSlashMatch[2]), Number(rgbSlashMatch[3])];
         block.providedRgb = true;
@@ -448,10 +460,6 @@ DF5B10"
         block.rgb = [Number(rgbSpaceMatch[1]), Number(rgbSpaceMatch[2]), Number(rgbSpaceMatch[3])];
         block.providedRgb = true;
         working = working.replace(rgbSpaceMatch[0], " ");
-      } else if (rgbCsvMatch) {
-        block.rgb = [Number(rgbCsvMatch[1]), Number(rgbCsvMatch[2]), Number(rgbCsvMatch[3])];
-        block.providedRgb = true;
-        working = working.replace(rgbCsvMatch[0], " ");
       }
 
       const hexLabelMatch = working.match(/HEX\s*:?\s*#\s*([0-9A-F]{6}|[0-9A-F]{3})\b/i);
@@ -479,13 +487,14 @@ DF5B10"
       }
 
       const leftover = working.replace(/^(?:CMYK|RGB|HEX|PANTONE|PMS|COLOR\s*CODES?)\b.*$/i, "").trim();
-      if (!block.name && /^[A-Z][A-Z\s()/-]{1,40}$/i.test(leftover) && !/^(CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|N\s*\/\s*A|COLOR\s*CODES?)$/i.test(leftover)) {
+      if (!block.name && !/^COLOU?R\s*\d+$/i.test(leftover) && /^[A-Z][A-Z\s()/-]{1,40}$/i.test(leftover) && !/^(CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|N\s*\/\s*A|COLOR\s*CODES?)$/i.test(leftover)) {
         block.name = leftover.toUpperCase();
       }
     }
 
     function isLikelyColorHeader(line) {
       if (!line || line.length > 45) return false;
+      if (/^COLOU?R\s*\d+$/i.test(line)) return false;
       if (/^(?:CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|N\s*\/\s*A|COLOR\s*CODES?|COLOUR\s*NAME)\b/i.test(line)) return false;
       if (/^[#CMYKRGB0-9\s:/=-]+$/i.test(line)) return false;
       if (line.split(/\s+/).length > 5) return false;
@@ -538,7 +547,6 @@ DF5B10"
            (/^HEX\b/i.test(line) && current.hex) ||
            (/^(?:PANTONE|PMS)\b/i.test(line) && (current.pms || hasFullTriplet)));
 
-        // Only split on a standalone HEX line if the current block ONLY had a previous HEX (no CMYK/RGB/PMS)
         const isSoleHexSplit = isHexOnlyLine && Boolean(current.hex) && !current.cmyk && !current.rgb && !current.pms;
 
         if (startsNewCodeSet || isSoleHexSplit || (isLikelyColorHeader(line) && hasAnyCode)) {
@@ -559,7 +567,6 @@ DF5B10"
         let rgb = b.rgb || null;
         const hex = b.hex ? b.hex.toUpperCase() : null;
 
-        // Convert ONLY when solely a HEX code is provided in the group
         const isSoleHex = Boolean(hex && !b.providedCmyk && !b.providedRgb && !pms);
         if (isSoleHex) {
           rgb = hexToRgb(hex);
@@ -614,10 +621,11 @@ DF5B10"
     });
 
     sampleBtn.addEventListener("click", () => {
-      rawInput.value = `Black - outlines and typography
-C0 M0 Y0 K100
-R0 G0 B0
-#000000
+      rawInput.value = `Colour Name: Lime Green
+PANTONE: 2287 C
+CMYK: 54, 0, 100, 23
+RGB: 91, 197, 0
+HEX: #5BC500
 
 DF5B10`;
       processInput();
