@@ -491,7 +491,8 @@ DF5B10"
         return;
       }
 
-      const lines = raw.split(/\r?\n/).map((l) => l.replace(/^["“”]+|["“”]+$/g, "").trim()).filter(Boolean);
+      // Preserve empty lines as block separators
+      const rawLines = raw.split(/\r?\n/).map((l) => l.replace(/^["“”]+|["“”]+$/g, "").trim());
       const blocks = [];
       let current = null;
 
@@ -502,7 +503,12 @@ DF5B10"
         current = null;
       };
 
-      for (const line of lines) {
+      for (const line of rawLines) {
+        if (!line) {
+          pushCurrent();
+          continue;
+        }
+
         if (/^(?:COLOU?R\s*\d+|COLOR\s*CODES?)\b/i.test(line)) {
           pushCurrent();
           current = {};
@@ -515,6 +521,11 @@ DF5B10"
 
         const hasAnyCode = Boolean(current.cmyk || current.rgb || current.hex);
         const hasFullTriplet = Boolean(current.cmyk && current.rgb && current.hex);
+        const isColorTitleLine =
+          /^[A-Z][A-Z\s()-]{1,28}$/i.test(line) &&
+          !/^(?:CMYK|RGB|HEX|PANTONE|PMS|NONE|N\/A|COLOR\s*CODES?)\b/i.test(line) &&
+          !/^[CMYKRGB0-9\s:/=-]+$/i.test(line);
+
         const startsNewCodeSet =
           ((/^CMYK\b/i.test(line) && current.cmyk) ||
            (/^RGB\b/i.test(line) && current.rgb) ||
@@ -523,7 +534,7 @@ DF5B10"
 
         const isSoleCodeLine = /^(?:#?\s*[0-9A-F]{6}|#?\s*[0-9A-F]{3})$/i.test(line);
 
-        if (startsNewCodeSet || (isSoleCodeLine && hasAnyCode)) {
+        if (startsNewCodeSet || (isSoleCodeLine && hasAnyCode) || (isColorTitleLine && hasAnyCode)) {
           pushCurrent();
           current = {};
         }
